@@ -1,0 +1,62 @@
+DECLARE
+    -- Variables to accept input
+    v_roll_no Borrower.Roll_no%TYPE;
+    v_book_name Borrower.Name_of_Book%TYPE;
+    
+    -- Variables for processing
+    v_date_of_issue Borrower.Date_of_Issue%TYPE;
+    v_status Borrower.Status%TYPE;
+    v_days NUMBER;
+    v_fine_amt NUMBER := 0;
+
+    -- Named Exception
+    e_borrower_not_found EXCEPTION;
+    
+BEGIN
+    -- Accept input from user
+    v_roll_no := &Enter_Roll_No;
+    v_book_name := '&Enter_Book_Name';
+
+    -- Fetch Date_of_Issue and Status
+    SELECT Date_of_Issue, Status INTO v_date_of_issue, v_status
+    FROM Borrower
+    WHERE Roll_no = v_roll_no AND Name_of_Book = v_book_name;
+
+    -- Calculate number of days since issue
+    v_days := TRUNC(SYSDATE - v_date_of_issue);
+
+    -- Control structure to calculate fine
+    IF v_days <= 15 THEN
+        v_fine_amt := 0;  -- No fine
+    ELSIF v_days > 15 AND v_days <= 30 THEN
+        v_fine_amt := v_days * 5;  -- Rs 5 per day
+    ELSE
+        v_fine_amt := v_days * 50; -- Rs 50 per day for > 30 days
+    END IF;
+
+    -- Update Borrower Status to 'R' (Returned)
+    UPDATE Borrower
+    SET Status = 'R'
+    WHERE Roll_no = v_roll_no AND Name_of_Book = v_book_name;
+
+    -- Insert into Fine table if fine > 0
+    IF v_fine_amt > 0 THEN
+        INSERT INTO Fine(Roll_no, Date, Amt)
+        VALUES (v_roll_no, SYSDATE, v_fine_amt);
+    END IF;
+
+    -- Commit the transaction
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Book returned successfully.');
+    DBMS_OUTPUT.PUT_LINE('Total fine: Rs ' || v_fine_amt);
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Borrower with given Roll No and Book not found.');
+    WHEN e_borrower_not_found THEN
+        DBMS_OUTPUT.PUT_LINE('Borrower Not Found Exception');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Some unexpected error occurred: ' || SQLERRM);
+END;
+/
