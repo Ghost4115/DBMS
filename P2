@@ -1,0 +1,56 @@
+-- Drop tables if exist
+DROP TABLE Enrollment;
+DROP TABLE Student;
+DROP TABLE Department;
+DROP TABLE Course;
+
+-- Department Table
+CREATE TABLE Department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL
+);
+
+-- Course Table
+CREATE TABLE Course (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(50) NOT NULL,
+    dept_id INT,
+    CONSTRAINT fk_dept_course FOREIGN KEY (dept_id) REFERENCES Department(dept_id)
+);
+
+-- Student Table
+CREATE TABLE Student (
+    stud_id INT PRIMARY KEY,
+    stud_name VARCHAR(50) NOT NULL,
+    dept_id INT,
+    dob DATE,
+    gender CHAR(1) CHECK (gender IN ('M','F')),
+    CONSTRAINT fk_dept_student FOREIGN KEY (dept_id) REFERENCES Department(dept_id)
+);
+
+-- Enrollment Table
+CREATE TABLE Enrollment (
+    enroll_id INT PRIMARY KEY,
+    stud_id INT,
+    course_id INT,
+    marks INT,
+    CONSTRAINT fk_student FOREIGN KEY (stud_id) REFERENCES Student(stud_id),
+    CONSTRAINT fk_course FOREIGN KEY (course_id) REFERENCES Course(course_id)
+);
+
+-- Insert sample data
+INSERT INTO Department VALUES (1,'Computer Science');
+INSERT INTO Department VALUES (2,'Mechanical');
+
+INSERT INTO Course VALUES (101,'Data Structures',1);
+INSERT INTO Course VALUES (102,'Algorithms',1);
+INSERT INTO Course VALUES (201,'Thermodynamics',2);
+
+INSERT INTO Student VALUES (1,'Manav',1,TO_DATE('2004-03-15','YYYY-MM-DD'),'M');
+INSERT INTO Student VALUES (2,'Riya',2,TO_DATE('2003-11-22','YYYY-MM-DD'),'F');
+INSERT INTO Student VALUES (3,'Amit',1,TO_DATE('2005-07-09','YYYY-MM-DD'),'M');
+
+INSERT INTO Enrollment VALUES (1,1,101,85);
+INSERT INTO Enrollment VALUES (2,1,102,90);
+INSERT INTO Enrollment VALUES (3,2,201,88);
+INSERT INTO Enrollment VALUES (4,3,101,92);
