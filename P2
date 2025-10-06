@@ -1,16 +1,19 @@
--- Drop tables if exist
-DROP TABLE Enrollment;
-DROP TABLE Student;
-DROP TABLE Department;
-DROP TABLE Course;
+-- ============================
+-- EXPERIMENT: SQL DML with Joins, Subqueries, and View
+-- ============================
 
--- Department Table
+-- 1. Drop existing tables if any
+DROP TABLE Enrollment CASCADE CONSTRAINTS;
+DROP TABLE Student CASCADE CONSTRAINTS;
+DROP TABLE Course CASCADE CONSTRAINTS;
+DROP TABLE Department CASCADE CONSTRAINTS;
+
+-- 2. Create Tables
 CREATE TABLE Department (
     dept_id INT PRIMARY KEY,
     dept_name VARCHAR(50) NOT NULL
 );
 
--- Course Table
 CREATE TABLE Course (
     course_id INT PRIMARY KEY,
     course_name VARCHAR(50) NOT NULL,
@@ -18,7 +21,6 @@ CREATE TABLE Course (
     CONSTRAINT fk_dept_course FOREIGN KEY (dept_id) REFERENCES Department(dept_id)
 );
 
--- Student Table
 CREATE TABLE Student (
     stud_id INT PRIMARY KEY,
     stud_name VARCHAR(50) NOT NULL,
@@ -28,7 +30,6 @@ CREATE TABLE Student (
     CONSTRAINT fk_dept_student FOREIGN KEY (dept_id) REFERENCES Department(dept_id)
 );
 
--- Enrollment Table
 CREATE TABLE Enrollment (
     enroll_id INT PRIMARY KEY,
     stud_id INT,
@@ -38,7 +39,7 @@ CREATE TABLE Enrollment (
     CONSTRAINT fk_course FOREIGN KEY (course_id) REFERENCES Course(course_id)
 );
 
--- Insert sample data
+-- 3. Insert Sample Data
 INSERT INTO Department VALUES (1,'Computer Science');
 INSERT INTO Department VALUES (2,'Mechanical');
 
@@ -54,3 +55,82 @@ INSERT INTO Enrollment VALUES (1,1,101,85);
 INSERT INTO Enrollment VALUES (2,1,102,90);
 INSERT INTO Enrollment VALUES (3,2,201,88);
 INSERT INTO Enrollment VALUES (4,3,101,92);
+
+-- ============================
+-- 4. SQL DML QUERIES
+-- ============================
+
+-- Query 1: INNER JOIN - Students with department
+SELECT s.stud_name, d.dept_name
+FROM Student s
+INNER JOIN Department d ON s.dept_id = d.dept_id;
+
+-- Query 2: LEFT JOIN - All students with courses (if enrolled)
+SELECT s.stud_name, c.course_name
+FROM Student s
+LEFT JOIN Enrollment e ON s.stud_id = e.stud_id
+LEFT JOIN Course c ON e.course_id = c.course_id;
+
+-- Query 3: RIGHT JOIN - All courses with enrolled students
+SELECT c.course_name, s.stud_name
+FROM Student s
+RIGHT JOIN Enrollment e ON s.stud_id = e.stud_id
+RIGHT JOIN Course c ON e.course_id = c.course_id;
+
+-- Query 4: FULL OUTER JOIN - All students and courses
+SELECT s.stud_name, c.course_name
+FROM Student s
+FULL OUTER JOIN Enrollment e ON s.stud_id = e.stud_id
+FULL OUTER JOIN Course c ON e.course_id = c.course_id;
+
+-- Query 5: Subquery (single-row) - Students in CS department
+SELECT stud_name
+FROM Student
+WHERE dept_id = (SELECT dept_id FROM Department WHERE dept_name='Computer Science');
+
+-- Query 6: Subquery (multi-row) - Students in CS courses
+SELECT stud_id, stud_name
+FROM Student
+WHERE stud_id IN (
+    SELECT stud_id FROM Enrollment
+    WHERE course_id IN (
+        SELECT course_id FROM Course WHERE dept_id = 1
+    )
+);
+
+-- Query 7: Create View - Student marks
+CREATE VIEW Student_Marks AS
+SELECT s.stud_name, c.course_name, e.marks
+FROM Student s
+JOIN Enrollment e ON s.stud_id = e.stud_id
+JOIN Course c ON e.course_id = c.course_id;
+
+-- Query 8: Select from View
+SELECT * FROM Student_Marks;
+
+-- Query 9: Aggregate function - Average marks per course
+SELECT c.course_name, AVG(e.marks) AS avg_marks
+FROM Enrollment e
+JOIN Course c ON e.course_id = c.course_id
+GROUP BY c.course_name;
+
+-- Query 10: ORDER BY - Students marks descending
+SELECT s.stud_name, c.course_name, e.marks
+FROM Enrollment e
+JOIN Student s ON e.stud_id = s.stud_id
+JOIN Course c ON e.course_id = c.course_id
+ORDER BY e.marks DESC;
+
+-- Query 11: HAVING - Courses with avg marks > 85
+SELECT c.course_name, AVG(e.marks) AS avg_marks
+FROM Enrollment e
+JOIN Course c ON e.course_id = c.course_id
+GROUP BY c.course_name
+HAVING AVG(e.marks) > 85;
+
+-- Query 12: EXISTS - Students enrolled in any course
+SELECT stud_name
+FROM Student s
+WHERE EXISTS (
+    SELECT 1 FROM Enrollment e WHERE e.stud_id = s.stud_id
+);
