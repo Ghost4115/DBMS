@@ -1,0 +1,114 @@
+1. Setup Database Table (MySQL)
+-- Create database and table
+CREATE DATABASE CollegeDB;
+
+USE CollegeDB;
+
+CREATE TABLE Student (
+    stud_id INT PRIMARY KEY,
+    stud_name VARCHAR(50),
+    dob DATE,
+    gender CHAR(1),
+    dept_id INT
+);
+
+-- Sample Data
+INSERT INTO Student VALUES (1, 'Manav', '2004-03-15', 'M', 1);
+INSERT INTO Student VALUES (2, 'Riya', '2003-11-22', 'F', 2);
+
+2. Python Program for Database Connectivity
+# Required Library
+import mysql.connector
+from mysql.connector import Error
+
+try:
+    # 1. Establish connection
+    conn = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='your_password',
+        database='CollegeDB'
+    )
+
+    if conn.is_connected():
+        print("Connected to MySQL database")
+
+    cursor = conn.cursor()
+
+    # ============================
+    # 2. ADD (INSERT) RECORD
+    # ============================
+    def add_student(stud_id, stud_name, dob, gender, dept_id):
+        sql = "INSERT INTO Student (stud_id, stud_name, dob, gender, dept_id) VALUES (%s,%s,%s,%s,%s)"
+        cursor.execute(sql, (stud_id, stud_name, dob, gender, dept_id))
+        conn.commit()
+        print(f"Student {stud_name} added successfully.")
+
+    # ============================
+    # 3. DELETE RECORD
+    # ============================
+    def delete_student(stud_id):
+        sql = "DELETE FROM Student WHERE stud_id=%s"
+        cursor.execute(sql, (stud_id,))
+        conn.commit()
+        print(f"Student with ID {stud_id} deleted successfully.")
+
+    # ============================
+    # 4. EDIT (UPDATE) RECORD
+    # ============================
+    def update_student(stud_id, stud_name):
+        sql = "UPDATE Student SET stud_name=%s WHERE stud_id=%s"
+        cursor.execute(sql, (stud_name, stud_id))
+        conn.commit()
+        print(f"Student with ID {stud_id} updated successfully.")
+
+    # ============================
+    # 5. VIEW ALL RECORDS
+    # ============================
+    def view_students():
+        cursor.execute("SELECT * FROM Student")
+        rows = cursor.fetchall()
+        print("Student Records:")
+        for row in rows:
+            print(row)
+
+    # ============================
+    # Example Usage
+    # ============================
+    view_students()
+    add_student(3, 'Amit', '2005-07-09', 'M', 1)
+    update_student(3, 'Amit Joshi')
+    delete_student(2)
+    view_students()
+
+except Error as e:
+    print("Error while connecting to MySQL", e)
+
+finally:
+    if conn.is_connected():
+        cursor.close()
+        conn.close()
+        print("MySQL connection closed")
+
+Explanation:
+
+Connection
+mysql.connector.connect() establishes connection to MySQL.
+
+Add Record
+INSERT INTO Student ... inserts new student.
+
+Delete Record
+DELETE FROM Student WHERE stud_id=... deletes a student.
+
+Edit Record
+UPDATE Student SET stud_name=... updates a student.
+
+View Records
+SELECT * FROM Student fetches all records.
+
+Commit
+conn.commit() ensures changes are saved in the database.
+
+Exception Handling
+Handles connection errors gracefully.
