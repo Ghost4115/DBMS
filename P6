@@ -1,0 +1,112 @@
+-- ============================
+-- 1. Setup Tables
+-- ============================
+
+-- Drop tables if they exist
+DROP TABLE O_Roll_Call;
+DROP TABLE N_Roll_Call;
+
+-- Create Old Roll Call Table
+CREATE TABLE O_Roll_Call (
+    roll_no INT PRIMARY KEY,
+    stud_name VARCHAR2(50)
+);
+
+-- Create New Roll Call Table
+CREATE TABLE N_Roll_Call (
+    roll_no INT PRIMARY KEY,
+    stud_name VARCHAR2(50)
+);
+
+-- Insert sample data into Old Roll Call
+INSERT INTO O_Roll_Call VALUES (1,'Manav');
+INSERT INTO O_Roll_Call VALUES (2,'Riya');
+
+-- Insert sample data into New Roll Call
+INSERT INTO N_Roll_Call VALUES (2,'Riya');
+INSERT INTO N_Roll_Call VALUES (3,'Amit');
+INSERT INTO N_Roll_Call VALUES (4,'Sneha');
+
+COMMIT;
+
+-- ============================
+-- 2. PL/SQL Block Using Cursors
+-- ============================
+
+DECLARE
+    -- Explicit Cursor
+    CURSOR c_n_roll(p_roll_no N_Roll_Call.roll_no%TYPE) IS
+        SELECT roll_no, stud_name
+        FROM N_Roll_Call
+        WHERE roll_no = p_roll_no;
+
+    -- Variables to hold cursor data
+    v_roll_no N_Roll_Call.roll_no%TYPE;
+    v_stud_name N_Roll_Call.stud_name%TYPE;
+
+    -- Implicit cursor attributes
+    v_rows_processed NUMBER;
+
+BEGIN
+    -- ============================
+    -- 2a. Implicit Cursor Example
+    -- ============================
+    INSERT INTO O_Roll_Call (roll_no, stud_name)
+    SELECT roll_no, stud_name
+    FROM N_Roll_Call n
+    WHERE NOT EXISTS (SELECT 1 FROM O_Roll_Call o WHERE o.roll_no = n.roll_no);
+
+    v_rows_processed := SQL%ROWCOUNT;
+    DBMS_OUTPUT.PUT_LINE('Rows merged using implicit cursor: ' || v_rows_processed);
+
+    -- ============================
+    -- 2b. Explicit Cursor with Parameterized Cursor Example
+    -- ============================
+    FOR rec IN (SELECT roll_no FROM N_Roll_Call) LOOP
+        OPEN c_n_roll(rec.roll_no);
+        FETCH c_n_roll INTO v_roll_no, v_stud_name;
+
+        IF v_roll_no IS NOT NULL THEN
+            -- Check if already exists in old table
+            DECLARE
+                v_count NUMBER;
+            BEGIN
+                SELECT COUNT(*) INTO v_count
+                FROM O_Roll_Call
+                WHERE roll_no = v_roll_no;
+
+                IF v_count = 0 THEN
+                    INSERT INTO O_Roll_Call(roll_no, stud_name)
+                    VALUES(v_roll_no, v_stud_name);
+                    DBMS_OUTPUT.PUT_LINE('Inserted roll_no=' || v_roll_no || ', Name=' || v_stud_name);
+                ELSE
+                    DBMS_OUTPUT.PUT_LINE('Skipped existing roll_no=' || v_roll_no);
+                END IF;
+            END;
+
+        END IF;
+
+        CLOSE c_n_roll;
+    END LOOP;
+
+    -- ============================
+    -- 2c. Cursor FOR LOOP Example
+    -- ============================
+    FOR rec IN (SELECT * FROM N_Roll_Call) LOOP
+        -- Check and insert if not exists
+        IF NOT EXISTS (SELECT 1 FROM O_Roll_Call o WHERE o.roll_no = rec.roll_no) THEN
+            INSERT INTO O_Roll_Call(roll_no, stud_name)
+            VALUES(rec.roll_no, rec.stud_name);
+        END IF;
+    END LOOP;
+
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Final merge completed.');
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+
+END;
+/
