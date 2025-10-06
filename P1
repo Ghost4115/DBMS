@@ -1,0 +1,100 @@
+-- ============================
+-- EXPERIMENT: SQL DDL & DML
+-- ============================
+
+-- Drop tables if they already exist (optional)
+DROP TABLE Student CASCADE CONSTRAINTS;
+DROP TABLE Department CASCADE CONSTRAINTS;
+
+-- 1. CREATE TABLES
+CREATE TABLE Department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL,
+    location VARCHAR(50)
+);
+
+CREATE TABLE Student (
+    stud_id INT PRIMARY KEY,
+    stud_name VARCHAR(50) NOT NULL,
+    dob DATE,
+    gender CHAR(1) CHECK (gender IN ('M', 'F')),
+    dept_id INT,
+    email VARCHAR(100) UNIQUE,
+    CONSTRAINT fk_dept FOREIGN KEY (dept_id) REFERENCES Department(dept_id)
+);
+
+-- 2. CREATE SEQUENCE
+CREATE SEQUENCE stud_seq
+START WITH 1
+INCREMENT BY 1
+MAXVALUE 1000
+NOCYCLE;
+
+-- 3. CREATE INDEX
+CREATE INDEX idx_student_name ON Student(stud_name);
+
+-- 4. CREATE VIEW
+CREATE VIEW Student_View AS
+SELECT stud_name, email, dept_name
+FROM Student
+JOIN Department ON Student.dept_id = Department.dept_id;
+
+-- 5. CREATE SYNONYM (for Oracle users)
+CREATE SYNONYM stud FOR Student;
+
+-- ============================
+-- DML STATEMENTS
+-- ============================
+
+-- 6. INSERT RECORDS
+INSERT INTO Department VALUES (1, 'Computer Science', 'Building A');
+INSERT INTO Department VALUES (2, 'Mechanical', 'Building B');
+INSERT INTO Department VALUES (3, 'Electrical', 'Building C');
+
+INSERT INTO Student VALUES (stud_seq.NEXTVAL, 'Manav Uttekar', TO_DATE('2004-03-15','YYYY-MM-DD'), 'M', 1, 'manav@gmail.com');
+INSERT INTO Student VALUES (stud_seq.NEXTVAL, 'Riya Patil', TO_DATE('2003-11-22','YYYY-MM-DD'), 'F', 2, 'riya@gmail.com');
+INSERT INTO Student VALUES (stud_seq.NEXTVAL, 'Amit Joshi', TO_DATE('2005-07-09','YYYY-MM-DD'), 'M', 3, 'amit@gmail.com');
+
+-- 7. DISPLAY ALL STUDENTS
+SELECT * FROM Student;
+
+-- 8. SELECT USING CONDITION AND OPERATOR
+SELECT stud_name, gender
+FROM Student
+WHERE dept_id = 1 AND gender = 'M';
+
+-- 9. AGGREGATE FUNCTION
+SELECT dept_id, COUNT(*) AS Total_Students
+FROM Student
+GROUP BY dept_id;
+
+-- 10. UPDATE RECORD
+UPDATE Student
+SET email = 'manav.uttekar@gmail.com'
+WHERE stud_name = 'Manav Uttekar';
+
+-- 11. DELETE RECORD
+DELETE FROM Student
+WHERE stud_name = 'Riya Patil';
+
+-- 12. STRING FUNCTION
+SELECT UPPER(stud_name) AS Name_Uppercase
+FROM Student;
+
+-- 13. DATE FUNCTION
+SELECT stud_name, EXTRACT(YEAR FROM dob) AS Birth_Year
+FROM Student;
+
+-- 14. SET OPERATOR (UNION)
+SELECT dept_name FROM Department
+UNION
+SELECT dept_name FROM Department WHERE location = 'Building B';
+
+-- 15. BETWEEN AND LIKE OPERATOR
+SELECT stud_name
+FROM Student
+WHERE dob BETWEEN TO_DATE('2003-01-01','YYYY-MM-DD') AND TO_DATE('2005-12-31','YYYY-MM-DD')
+AND email LIKE '%gmail.com';
+
+-- 16. VIEW OUTPUT
+SELECT * FROM Student_View;
