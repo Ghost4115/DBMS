@@ -1,0 +1,135 @@
+⭐ Experiment 1: SQL Queries
+Q1. What is SQL?
+Answer:
+SQL (Structured Query Language) is a standard language used to store, manipulate, and retrieve data in relational databases. It allows users to create and manage database structures and perform data operations like insertion, deletion, and updates.
+
+Q2. What are DDL and DML commands?
+Answer:
+DDL (Data Definition Language): Defines the structure of a database.
+Examples: CREATE, ALTER, DROP, TRUNCATE.
+DML (Data Manipulation Language): Used to manipulate data within tables.
+Examples: INSERT, UPDATE, DELETE, SELECT.
+
+Q3. What are SQL objects?
+Answer:
+SQL objects are database entities such as:
+Table: Stores data in rows and columns.
+View: A virtual table based on query results.
+Index: Improves the speed of data retrieval.
+Sequence: Generates unique numeric values.
+Synonym: Alternative name for another database object.
+Constraints: Rules applied to maintain data integrity (e.g., PRIMARY KEY, UNIQUE, CHECK).
+
+Q4. What is the purpose of constraints in SQL?
+Answer:
+Constraints ensure data accuracy and consistency. They prevent invalid data entry, such as duplicate roll numbers or negative values in marks.
+
+⭐ Experiment 2: SQL Queries – Joins, Sub-Queries, and Views
+
+Q1. What is a Join in SQL?
+Answer:
+A Join combines rows from two or more tables based on a related column between them.
+Types of Joins:
+INNER JOIN: Returns only matching rows.
+LEFT JOIN: Returns all rows from the left table and matching ones from the right.
+RIGHT JOIN: Returns all rows from the right table and matching ones from the left.
+FULL JOIN: Returns rows when there is a match in one of the tables.
+
+Q2. What is a Sub-Query?
+Answer:
+A Sub-Query is a query inside another query. It is used to get intermediate results that are used by the main query.
+Example:
+SELECT * FROM Employee WHERE Salary > (SELECT AVG(Salary) FROM Employee);
+
+Q3. What is a View?
+Answer:
+A View is a virtual table created using the SELECT statement. It simplifies complex queries and provides a layer of security by restricting direct access to base tables.
+
+⭐ Experiment 3: MongoDB Queries
+Q1. What is MongoDB?
+Answer:
+MongoDB is a NoSQL database that stores data in the form of documents using JSON-like format called BSON. It is schema-less and provides flexibility in storing unstructured data.
+Q2. What are CRUD operations in MongoDB?
+Answer:
+CRUD stands for Create, Read, Update, and Delete:
+Create: insertOne() or insertMany()
+Read: find()
+Update: updateOne() or updateMany()
+Delete: deleteOne() or deleteMany()
+Q3. What is the SAVE method in MongoDB?
+Answer:
+The save() method is used to insert a new document or update an existing one if it already exists based on the _id field.
+
+⭐ Experiment 4: Unnamed PL/SQL Block
+
+Q1. What is PL/SQL?
+Answer:
+PL/SQL (Procedural Language/SQL) is Oracle’s procedural extension of SQL that supports loops, conditions, and exceptions. It allows combining SQL with programming logic.
+
+Q2. What is an Unnamed Block in PL/SQL?
+Answer:
+An unnamed block is an anonymous PL/SQL block without a name, often used for quick execution. It consists of:
+DECLARE – Declare variables.
+BEGIN – Write executable statements.
+EXCEPTION – Handle runtime errors.
+END;
+
+Q3. What is Exception Handling in PL/SQL?
+Answer:
+Exception handling is used to manage runtime errors.
+Types:
+Predefined Exceptions: e.g., NO_DATA_FOUND, ZERO_DIVIDE.
+User-defined Exceptions: Created by the user to handle specific conditions.
+
+⭐ Experiment 5: Exporting and Importing Data
+Q1. What is Data Exporting?
+Answer:
+Exporting means transferring data from a database table to an external file format like CSV, XLSX, or TXT for sharing or backup purposes.
+
+Q2. What is Data Importing?
+Answer:
+Importing means reading data from external files into a database table. It helps in bulk data entry or migration.
+
+Q3. Why are exporting and importing important?
+Answer:
+They are important for:
+Backup and recovery.
+Data migration between systems.
+Integration with other applications.
+
+⭐ Experiment 6: Cursors (All Types)
+Q1. What is a Cursor in PL/SQL?
+Answer:
+A cursor is a pointer used to fetch and manipulate rows returned by a SQL query one at a time.
+
+Q2. What are the types of Cursors?
+Answer:
+Implicit Cursor: Automatically created for SQL statements like INSERT or SELECT.
+Explicit Cursor: Created by the programmer using DECLARE CURSOR.
+Cursor FOR Loop: Automatically opens, fetches, and closes the cursor.
+Parameterized Cursor: Accepts parameters to make queries dynamic.
+
+Q3. Why are cursors used?
+Answer:
+Cursors are used to process multiple rows returned by a query individually, especially when complex row-by-row operations are needed.
+
+⭐ Experiment 7: Database Connectivity
+Q1. What is Database Connectivity?
+Answer:
+Database connectivity refers to the process of connecting a front-end application (like Java, Python, or PHP) with a back-end database (like MySQL or Oracle) to perform operations such as adding, editing, deleting, and viewing records.
+
+Q2. What is JDBC/ODBC?
+Answer:
+JDBC (Java Database Connectivity): Used to connect Java programs with databases.
+ODBC (Open Database Connectivity): Standard API for connecting any application with any database.
+
+Q3. What are common database navigation operations?
+Answer:
+Add record (INSERT)
+Delete record (DELETE)
+Edit record (UPDATE)
+Display record (SELECT)
+
+Q4. Why is connectivity important?
+Answer:
+It allows integration between application and data, enabling real-time updates, transactions, and interactive systems.
