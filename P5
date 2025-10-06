@@ -1,0 +1,83 @@
+-- ============================
+-- PROGRAM: Export & Import Student Table
+-- ============================
+
+-- 1. Drop and Create Student Table
+DROP TABLE Student;
+
+CREATE TABLE Student (
+    stud_id INT PRIMARY KEY,
+    stud_name VARCHAR2(50),
+    dob DATE,
+    gender CHAR(1),
+    dept_id INT
+);
+
+-- 2. Insert Sample Data
+INSERT INTO Student VALUES (1,'Manav', TO_DATE('2004-03-15','YYYY-MM-DD'),'M', 1);
+INSERT INTO Student VALUES (2,'Riya', TO_DATE('2003-11-22','YYYY-MM-DD'),'F', 2);
+INSERT INTO Student VALUES (3,'Amit', TO_DATE('2005-07-09','YYYY-MM-DD'),'M', 1);
+
+COMMIT;
+
+-- ============================
+-- 3. EXPORT TABLE TO CSV
+-- ============================
+
+-- Using SQL*Plus
+SET HEADING ON;
+SET FEEDBACK OFF;
+SET COLSEP ',';
+SET LINESIZE 1000;
+SET PAGESIZE 50000;
+
+SPOOL 'C:\Users\Manav\Documents\student.csv';
+
+SELECT stud_id, stud_name, TO_CHAR(dob,'YYYY-MM-DD') AS dob, gender, dept_id
+FROM Student;
+
+SPOOL OFF;
+
+-- ============================
+-- 4. EXPORT TABLE TO TXT
+-- ============================
+SPOOL 'C:\Users\Manav\Documents\student.txt';
+SELECT stud_id || ' | ' || stud_name || ' | ' || TO_CHAR(dob,'YYYY-MM-DD') || ' | ' || gender || ' | ' || dept_id AS STUDENT_DETAILS
+FROM Student;
+SPOOL OFF;
+
+-- ============================
+-- 5. IMPORT TABLE FROM CSV (SQL*Loader Example)
+-- ============================
+-- Step 1: Create Control File (student.ctl)
+-- Content of student.ctl:
+-- LOAD DATA
+-- INFILE 'C:\Users\Manav\Documents\student.csv'
+-- INTO TABLE Student
+-- FIELDS TERMINATED BY ','
+-- OPTIONALLY ENCLOSED BY '"'
+-- (stud_id, stud_name, dob DATE "YYYY-MM-DD", gender, dept_id);
+
+-- Step 2: Run SQL*Loader in Command Prompt
+-- sqlldr userid=your_user/your_password control=student.ctl
+
+-- ============================
+-- 6. IMPORT TABLE FROM TXT (SQL*Loader Example)
+-- ============================
+
+-- Step 1: Create Control File (student_txt.ctl)
+-- Content:
+-- LOAD DATA
+-- INFILE 'C:\Users\Manav\Documents\student.txt'
+-- INTO TABLE Student
+-- FIELDS TERMINATED BY '|'
+-- (stud_id, stud_name, dob DATE "YYYY-MM-DD", gender, dept_id);
+
+-- Step 2: Run SQL*Loader
+-- sqlldr userid=your_user/your_password control=student_txt.ctl
+
+-- ============================
+-- 7. VERIFY IMPORT
+-- ============================
+
+SELECT * FROM Student;
